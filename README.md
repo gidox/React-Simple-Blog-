@@ -1,7 +1,7 @@
 # React-Simple-Blog-
 
 
-## Usage
+## Installation
 
 Firstly, install it:
 
