@@ -1,10 +1,11 @@
 import React, { Component, PropTypes } from 'react';
 import { Link } from 'react-router';
-import api from '../../api.js';
+import api from '../../api';
 
+import styles from './Post.css';
 
 class Post extends Component {
-  constructor(props){
+  constructor(props) {
     super(props);
 
     this.state = {
@@ -14,8 +15,11 @@ class Post extends Component {
     };
   }
 
-  async componentDidMount() {
-    if (!!this.state.user && !!this.state.comments) return this.setState({loading: false})
+  componentDidMount() {
+    this.initialFetch();
+  }
+  async initialFetch() {
+    if (!!this.state.user && !!this.state.comments) return this.setState({ loading: false });
     const [
       user,
       comments,
@@ -23,42 +27,50 @@ class Post extends Component {
       !this.state.user ? api.users.getSingle(this.props.userId) : Promise.resolve(null),
       !this.state.comments ? api.posts.getComments(this.props.userId) : Promise.resolve(null),
     ]);
-
-    this.setState({
+    return this.setState({
       loading: false,
       user: user || this.state.user,
       comments: comments || this.state.comments,
-    })
+    });
   }
   render() {
-    return(
-      <article id={`post-${this.props.id}`}>
-        <Link to={`/posts/${this.props.id}`}>
-          <h2> {this.props.title} </h2>
-        </Link>
-        <p>
+    return (
+      <article id={`post-${this.props.id}`} className={styles.post}>
+        <h2 className={styles.title}>
+          <Link to={`/posts/${this.props.id}`} >
+            {this.props.title}
+          </Link>
+        </h2>
+        <p className={styles.body}>
           {this.props.body}
         </p>
-        {this.props.loading && (
-          <div>
-            <Link to={`/user/${this.state.user.id}`}>
+
+        {this.state.comments && (
+          <div className={styles.meta}>
+            <Link to={`/user/${this.state.user.id}`} className={styles.user}>
               {this.state.user.name}
             </Link>
-            <span>
+            <span className={styles.comments}>
               hay {this.state.comments.length} comentarios
             </span>
           </div>
         )}
       </article>
-    )
+    );
   }
 }
 
-Post.propTypes= {
+Post.propTypes = {
   id: PropTypes.number,
   userId: PropTypes.number,
   title: PropTypes.string,
   body: PropTypes.string,
+  user: PropTypes.shape({
+    name: PropTypes.string,
+  }),
+  comments: PropTypes.arrayOf(
+    PropTypes.objects,
+  ),
 };
 
 export default Post;

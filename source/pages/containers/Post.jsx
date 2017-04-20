@@ -1,25 +1,29 @@
-import React, { Component } from 'react';
-import { Link } from 'react-router';
+import React, { Component, PropTypes } from 'react';
 
-import PostBody from '../../posts/containers/Post.jsx'
-import Comment from '../../comments/components/Comment.jsx'
-import Loading from '../../shared/components/Loading.jsx'
 
-import api from '../../api.js'
+import PostBody from '../../posts/containers/Post';
+import Loading from '../../shared/components/Loading';
+import Comment from '../../comments/components/Comment';
+
+
+import api from '../../api';
 
 class Post extends Component {
-  constructor(props){
-    super(props)
+  constructor(props) {
+    super(props);
 
     this.state = {
-      loading:true,
-      user:{},
-      post:{},
-      comments:[],
+      loading: true,
+      user: {},
+      post: {},
+      comments: [],
     };
   }
 
-  async componentDidMount() {
+  componentDidMount() {
+    this.initialFetch();
+  }
+  async initialFetch() {
     const [
       post,
       comments,
@@ -35,12 +39,11 @@ class Post extends Component {
       post,
       user,
       comments,
-    })
+    });
   }
-
   render() {
     if (this.state.loading) {
-      return <Loading />
+      return <Loading />;
     }
     return (
       <section name="Post">
@@ -49,6 +52,7 @@ class Post extends Component {
           user={this.state.user}
           comments={this.state.comments}
         />
+
         <section>
           {this.state.comments
             .map(comment => (
@@ -58,9 +62,13 @@ class Post extends Component {
         </section>
 
       </section>
-
     );
   }
 }
 
+Post.propTypes = {
+  params: PropTypes.shape({
+    id: PropTypes.number,
+  }),
+};
 export default Post;

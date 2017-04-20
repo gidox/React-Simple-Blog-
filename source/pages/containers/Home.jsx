@@ -1,13 +1,14 @@
 import React, { Component } from 'react';
-import { Link } from 'react-router';
 
-import Post from '../../posts/containers/Post.jsx';
-import Loading from '../../shared/components/Loading.jsx'
+import Post from '../../posts/containers/Post';
+import Loading from '../../shared/components/Loading';
 
-import api from '../../api.js';
+import api from '../../api';
+
+import styles from './Page.css';
 
 class Home extends Component {
-  constructor(props){
+  constructor(props) {
     super(props);
 
     this.state = {
@@ -20,33 +21,35 @@ class Home extends Component {
   }
 
   async componentDidMount() {
-    const posts = await api.posts.getList(this.state.page);
+    this.initialFetch();
+    window.addEventListener('scroll', this.handleScroll);
+  }
 
+  componentWillUnmount() {
+    window.removeEventListener('scroll', this.handleScroll);
+  }
+
+  async initialFetch() {
+    const posts = await api.posts.getList(this.state.page);
     this.setState({
       posts,
       page: this.state.page + 1,
       loading: false,
-    })
-
-    window.addEventListener('scroll', this.handleScroll);
+    });
   }
 
-  componentWillUnmount(){
-    window.removeEventListener('scroll', this.handleScroll);
-  }
-
-  handleScroll(event) {
-    if(this.state.loading) return null;
+  handleScroll() {
+    if (this.state.loading) return null;
 
     const scrolled = window.scrollY;
     const viewportHeight = window.innerHeight;
     const fullHeight = document.documentElement.clientHeight;
 
-    if(!(scrolled + viewportHeight + 300 >= fullHeight)) {
-      return null
+    if (!(scrolled + viewportHeight + 300 >= fullHeight)) {
+      return null;
     }
 
-    this.setState({loading: true}, async () => {
+    return this.setState({ loading: true }, async () => {
       try {
         const posts = await api.posts.getList(this.state.page);
 
@@ -54,18 +57,18 @@ class Home extends Component {
           posts: this.state.posts.concat(posts),
           page: this.state.page + 1,
           loading: false,
-        })
-      } catch (error){
+        });
+      } catch (error) {
         console.error(error);
-        this.setState({loading: false});
+        this.setState({ loading: false });
       }
-    })
+    });
   }
   render() {
     return (
-      <section name="Home">
+      <section name="Home" className={styles.section}>
         <h1>Home</h1>
-        <section>
+        <section className={styles.list}>
           {this.state.loading && (
             <Loading />
           )}
